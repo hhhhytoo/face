@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <!-- Import French-inspired font -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            background-color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .black-section {
+            background-color: black;
+            width: 100%;
+            padding-top: 5vh;
+            position: relative;
+            padding-bottom: 0;
+        }
+        .container {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        .face {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 2rem auto;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 2px 8px rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+        .eye {
+            position: absolute;
+            width: 24px;
+            height: 2px; /* closed eye */
+            background: white;
+            border-radius: 2px;
+            top: 35px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: height 2s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        border-radius 2s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        transform 2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform: scale(1);
+        }
+        .eye.left {
+            left: 25px;
+        }
+        .eye.right {
+            right: 25px;
+        }
+        .eye.open {
+            height: 24px; /* open eye */
+            border-radius: 50%;
+            transform: scale(1.1);
+        }
+        .pupil {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: black;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: opacity 0.8s ease;
+            opacity: 0;
+        }
+        .eye.open .pupil {
+            opacity: 1;
+        }
+        .mouth-svg {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 30px;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+        .mouth-svg.visible {
+            opacity: 1;
+        }
+        .mouth-path {
+            stroke: white;
+            stroke-width: 4;
+            stroke-linecap: round;
+            fill: none;
+        }
+        input {
+            padding: 0.8rem 1.2rem;
+            font-size: 1.1rem;
+            width: 250px;
+            border: none;
+            border-radius: 40px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), inset 0 2px 5px rgba(255, 255, 255, 0.2);
+            color: white;
+            outline: none;
+            transition: all 0.3s ease, opacity 1.5s ease;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            opacity: 0;
+        }
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 300;
+        }
+        input.visible {
+            opacity: 1;
+        }
+        input:focus {
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4), inset 0 2px 8px rgba(255, 255, 255, 0.3);
+            transform: scale(1.02);
+        }
+        button {
+            padding: 0.8rem 2rem;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 40px;
+            background: linear-gradient(145deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 3px rgba(255,255,255,0.3);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease, opacity 1.5s ease;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            opacity: 0;
+            margin: 0 0.5rem;
+        }
+        button.visible {
+            opacity: 1;
+        }
+        button:hover:not(:disabled) {
+            background: linear-gradient(145deg, rgba(255,255,255,0.4), rgba(255,255,255,0.15));
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), inset 0 1px 5px rgba(255,255,255,0.4);
+            transform: translateY(-2px);
+        }
+        button:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+        button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 0;
+        }
+        /* Container for username bubbles in black section */
+        .black-bubbles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .black-bubble {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border-radius: 999px;
+            padding: 8px 16px;
+            color: white;
+            font-size: 16px;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 3px rgba(255,255,255,0.3);
+            will-change: transform, left, top;
+            transition: left 0.8s cubic-bezier(0.2, 0.9, 0.3, 1), top 0.8s cubic-bezier(0.2, 0.9, 0.3, 1);
+            pointer-events: none;
+            animation: float 4s infinite ease-in-out;
+        }
+        /* Spacer to create distance between button and wave */
+        .spacer {
+            height: 150px;
+            background-color: black;
+        }
+        /* Wave SVG - filled white, creating wavy top edge of white area */
+        .wave {
+            display: block;
+            width: 100%;
+            height: auto;
+            vertical-align: bottom;
+        }
+        .wave path {
+            fill: white;
+            stroke: none;
+        }
+        /* White content area below wave - with floating bubbles */
+        .white-content {
+            background-color: white;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            text-align: center;
+            min-height: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+        /* Floating bubbles container */
+        .bubbles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .bubble {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 50%;
+            will-change: transform;
+            transition: transform 0.15s ease-out;
+        }
+        /* Floating animation */
+        @keyframes float {
+            0% { transform: translate(0, 0); }
+            50% { transform: translate(0, -20px); }
+            100% { transform: translate(0, 0); }
+        }
+        /* Text above bubbles */
+        .white-content h1,
+        .white-content p {
+            position: relative;
+            z-index: 1;
+            margin: 0;
+            max-width: 600px;
+        }
+        .white-content h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #333;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            opacity: 0;
+            transform: translateY(100px);
+            transition: opacity 1.2s cubic-bezier(0.2, 0.9, 0.3, 1), 
+                        transform 1.2s cubic-bezier(0.2, 0.9, 0.3, 1);
+        }
+        .white-content p {
+            font-size: 1.2rem;
+            color: #666;
+            line-height: 1.6;
+            opacity: 0;
+            transform: translateY(100px);
+            transition: opacity 1.2s cubic-bezier(0.2, 0.9, 0.3, 1) 0.2s, 
+                        transform 1.2s cubic-bezier(0.2, 0.9, 0.3, 1) 0.2s;
+        }
+        .white-content.visible h1,
+        .white-content.visible p {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* Character hover effect */
+        .char {
+            position: relative;
+            display: inline;
+            cursor: default;
+        }
+        .char:hover::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 1.5em;
+            height: 1.5em;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.15);
+            pointer-events: none;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="black-section">
+        <!-- Container for username bubbles -->
+        <div class="black-bubbles" id="black-bubbles"></div>
+        <div class="container">
+            <div class="face" id="face">
+                <div class="eye left" id="eye-left">
+                    <div class="pupil" id="pupil-left"></div>
+                </div>
+                <div class="eye right" id="eye-right">
+                    <div class="pupil" id="pupil-right"></div>
+                </div>
+                <svg class="mouth-svg" id="mouth-svg" viewBox="0 0 60 30">
+                    <path class="mouth-path" id="mouth-path" d="M 10,15 L 50,15" />
+                </svg>
+            </div>
+            <input type="text" id="username" placeholder="Username">
+            <div class="button-group">
+                <button onclick="generateBubble()" id="generate-btn">Generate</button>
+                <button onclick="continueToPage2()" id="continue-btn" disabled>Continue</button>
+            </div>
+        </div>
+        <!-- Spacer -->
+        <div class="spacer"></div>
+        <!-- Wave SVG -->
+        <svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none">
+            <path d="M0,20 Q200,5 400,20 Q600,35 800,20 Q1000,5 1200,20" />
+        </svg>
+    </div>
+
+    <!-- White background area below wave with floating bubbles -->
+    <div class="white-content" id="white-content">
+        <div class="bubbles" id="bubbles"></div>
+        <h1>Welcome</h1>
+        <p>We're thrilled to have you. Let's get started!</p>
+    </div>
+
+    <script>
+        let bubbleGenerated = false;
+
+        function continueToPage2() {
+            if (!bubbleGenerated) return;
+            window.location.href = 'page2.html'; // Opens page2
+        }
+
+        function generateBubble() {
+            const generateBtn = document.getElementById('generate-btn');
+            if (generateBtn.disabled) return;
+
+            const usernameInput = document.getElementById('username');
+            let username = usernameInput.value.trim();
+            if (username === '') {
+                username = 'Guest';
+            }
+            createFloatingBubble(username);
+
+            generateBtn.disabled = true;
+            bubbleGenerated = true;
+            document.getElementById('continue-btn').disabled = false;
+        }
+
+        function createFloatingBubble(username) {
+            const container = document.getElementById('black-bubbles');
+            const face = document.getElementById('face');
+            const faceRect = face.getBoundingClientRect();
+            const containerRect = container.getBoundingClientRect();
+
+            const faceCenterX = (faceRect.left + faceRect.width / 2 - containerRect.left) / containerRect.width * 100;
+            const faceCenterY = (faceRect.top + faceRect.height / 2 - containerRect.top) / containerRect.height * 100;
+
+            const angle = Math.random() * 2 * Math.PI;
+            const radius = 5;
+            const startX = faceCenterX + Math.cos(angle) * radius;
+            const startY = faceCenterY + Math.sin(angle) * radius;
+
+            const targetX = 80;
+            const existingBubbles = document.querySelectorAll('.black-bubble');
+            let targetY = 20;
+            if (existingBubbles.length > 0) {
+                const usedYs = [];
+                existingBubbles.forEach(b => {
+                    const y = parseFloat(b.dataset.targetY) || 20;
+                    usedYs.push(y);
+                });
+                for (let y = 10; y <= 90; y += 10) {
+                    if (!usedYs.some(used => Math.abs(used - y) < 8)) {
+                        targetY = y;
+                        break;
+                    }
+                }
+                if (targetY === 20) targetY = 20 + (existingBubbles.length * 8) % 80;
+            }
+
+            const bubble = document.createElement('div');
+            bubble.className = 'black-bubble';
+            bubble.textContent = username;
+            bubble.style.left = startX + '%';
+            bubble.style.top = startY + '%';
+            bubble.dataset.targetX = targetX;
+            bubble.dataset.targetY = targetY;
+            container.appendChild(bubble);
+
+            setTimeout(() => {
+                bubble.style.left = targetX + '%';
+                bubble.style.top = targetY + '%';
+            }, 10);
+        }
+
+        // Wrap characters for hover effect
+        function wrapCharacters() {
+            const elements = document.querySelectorAll('#white-content h1, #white-content p');
+            elements.forEach(el => {
+                const text = el.textContent;
+                const wrapped = text.split('').map(char => {
+                    if (char === ' ') return ' ';
+                    return `<span class="char">${char}</span>`;
+                }).join('');
+                el.innerHTML = wrapped;
+            });
+        }
+
+        // Entrance animations
+        window.addEventListener('load', function() {
+            wrapCharacters();
+
+            setTimeout(() => {
+                document.getElementById('eye-left').classList.add('open');
+                document.getElementById('eye-right').classList.add('open');
+            }, 500);
+
+            setTimeout(() => {
+                document.getElementById('mouth-svg').classList.add('visible');
+            }, 2500);
+
+            setTimeout(() => {
+                document.getElementById('username').classList.add('visible');
+                document.getElementById('generate-btn').classList.add('visible');
+                document.getElementById('continue-btn').classList.add('visible');
+            }, 3500);
+        });
+
+        // Mouth morph on username click
+        const mouthPath = document.getElementById('mouth-path');
+        const smilePath = "M 10,15 Q 30,25 50,15";
+
+        let animFrame = null;
+        let startTime = null;
+        const duration = 1000;
+
+        function animateMorph(targetPath) {
+            if (animFrame) cancelAnimationFrame(animFrame);
+            const startPath = mouthPath.getAttribute('d');
+            const startPoints = parsePath(startPath);
+            const endPoints = parsePath(targetPath);
+            startTime = performance.now();
+
+            function step(now) {
+                const elapsed = now - startTime;
+                const t = Math.min(elapsed / duration, 1);
+                const eased = 0.5 - 0.5 * Math.cos(Math.PI * t);
+                const currentPath = interpolatePath(startPoints, endPoints, eased);
+                mouthPath.setAttribute('d', currentPath);
+                if (t < 1) {
+                    animFrame = requestAnimationFrame(step);
+                } else {
+                    animFrame = null;
+                }
+            }
+            animFrame = requestAnimationFrame(step);
+        }
+
+        function parsePath(d) {
+            const parts = d.split(' ');
+            const cmd1 = parts[0];
+            const x1 = parseFloat(parts[1].split(',')[0]);
+            const y1 = parseFloat(parts[1].split(',')[1]);
+            const cmd2 = parts[2];
+            if (cmd2 === 'L') {
+                const x2 = parseFloat(parts[3].split(',')[0]);
+                const y2 = parseFloat(parts[3].split(',')[1]);
+                return { type: 'L', start: { x: x1, y: y1 }, end: { x: x2, y: y2 } };
+            } else if (cmd2 === 'Q') {
+                const cx = parseFloat(parts[3].split(',')[0]);
+                const cy = parseFloat(parts[3].split(',')[1]);
+                const x2 = parseFloat(parts[4].split(',')[0]);
+                const y2 = parseFloat(parts[4].split(',')[1]);
+                return { type: 'Q', start: { x: x1, y: y1 }, control: { x: cx, y: cy }, end: { x: x2, y: y2 } };
+            }
+            return null;
+        }
+
+        function interpolatePath(start, end, t) {
+            if (start.type === 'L' && end.type === 'Q') {
+                const mid = {
+                    x: (start.start.x + start.end.x) / 2,
+                    y: (start.start.y + start.end.y) / 2
+                };
+                const startAsQ = {
+                    type: 'Q',
+                    start: start.start,
+                    control: mid,
+                    end: start.end
+                };
+                return interpolateQ(startAsQ, end, t);
+            } else if (start.type === 'Q' && end.type === 'L') {
+                const mid = {
+                    x: (end.start.x + end.end.x) / 2,
+                    y: (end.start.y + end.end.y) / 2
+                };
+                const endAsQ = {
+                    type: 'Q',
+                    start: end.start,
+                    control: mid,
+                    end: end.end
+                };
+                return interpolateQ(start, endAsQ, t);
+            } else if (start.type === 'Q' && end.type === 'Q') {
+                return interpolateQ(start, end, t);
+            } else {
+                const x = start.start.x + (end.start.x - start.start.x) * t;
+                const y = start.start.y + (end.start.y - start.start.y) * t;
+                const x2 = start.end.x + (end.end.x - start.end.x) * t;
+                const y2 = start.end.y + (end.end.y - start.end.y) * t;
+                return `M ${x},${y} L ${x2},${y2}`;
+            }
+        }
+
+        function interpolateQ(start, end, t) {
+            const sx = start.start.x + (end.start.x - start.start.x) * t;
+            const sy = start.start.y + (end.start.y - start.start.y) * t;
+            const cx = start.control.x + (end.control.x - start.control.x) * t;
+            const cy = start.control.y + (end.control.y - start.control.y) * t;
+            const ex = start.end.x + (end.end.x - start.end.x) * t;
+            const ey = start.end.y + (end.end.y - start.end.y) * t;
+            return `M ${sx},${sy} Q ${cx},${cy} ${ex},${ey}`;
+        }
+
+        document.getElementById('username').addEventListener('click', function() {
+            animateMorph(smilePath);
+        });
+
+        // Eye tracking
+        const face = document.getElementById('face');
+        const leftPupil = document.getElementById('pupil-left');
+        const rightPupil = document.getElementById('pupil-right');
+        const maxOffset = 6;
+
+        function movePupils(event) {
+            const leftEye = document.querySelector('.eye.left');
+            const rightEye = document.querySelector('.eye.right');
+            if (!leftEye || !rightEye) return;
+
+            const leftEyeRect = leftEye.getBoundingClientRect();
+            const rightEyeRect = rightEye.getBoundingClientRect();
+
+            const leftEyeCenter = {
+                x: leftEyeRect.left + leftEyeRect.width / 2,
+                y: leftEyeRect.top + leftEyeRect.height / 2
+            };
+            const rightEyeCenter = {
+                x: rightEyeRect.left + rightEyeRect.width / 2,
+                y: rightEyeRect.top + rightEyeRect.height / 2
+            };
+
+            function getOffset(eyeCenter) {
+                let dx = event.clientX - eyeCenter.x;
+                let dy = event.clientY - eyeCenter.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance === 0) return { x: 0, y: 0 };
+                const ratio = Math.min(maxOffset / distance, 1);
+                return { x: dx * ratio, y: dy * ratio };
+            }
+
+            const leftOffset = getOffset(leftEyeCenter);
+            const rightOffset = getOffset(rightEyeCenter);
+
+            leftPupil.style.transform = `translate(calc(-50% + ${leftOffset.x}px), calc(-50% + ${leftOffset.y}px))`;
+            rightPupil.style.transform = `translate(calc(-50% + ${rightOffset.x}px), calc(-50% + ${rightOffset.y}px))`;
+        }
+
+        document.addEventListener('mousemove', movePupils);
+
+        // Scroll animation for white content
+        const whiteContent = document.getElementById('white-content');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    whiteContent.classList.add('visible');
+                } else {
+                    whiteContent.classList.remove('visible');
+                }
+            });
+        }, { threshold: 0.3 });
+        observer.observe(whiteContent);
+
+        // Bubble repulsion effect (smooth)
+        let bubbles = [];
+        const container = document.querySelector('.white-content');
+        const bubbleContainer = document.getElementById('bubbles');
+        const repulsionRadius = 80;
+        const repulsionStrength = 0.8;
+
+        function createBubbles() {
+            const bubbleCount = 20;
+            for (let i = 0; i < bubbleCount; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+
+                const size = Math.random() * 40 + 10;
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+
+                const left = Math.random() * 100;
+                const top = Math.random() * 100;
+                bubble.style.left = left + '%';
+                bubble.style.top = top + '%';
+
+                bubble.dataset.origLeft = left;
+                bubble.dataset.origTop = top;
+
+                const duration = Math.random() * 6 + 4;
+                bubble.style.animation = `float ${duration}s infinite ease-in-out`;
+                bubble.style.animationDelay = Math.random() * 5 + 's';
+
+                bubbleContainer.appendChild(bubble);
+                bubbles.push(bubble);
+            }
+        }
+
+        function handleMouseMove(e) {
+            const containerRect = container.getBoundingClientRect();
+            const mouseX = e.clientX - containerRect.left;
+            const mouseY = e.clientY - containerRect.top;
+
+            bubbles.forEach(bubble => {
+                const bubbleRect = bubble.getBoundingClientRect();
+                const bubbleX = bubbleRect.left + bubbleRect.width / 2 - containerRect.left;
+                const bubbleY = bubbleRect.top + bubbleRect.height / 2 - containerRect.top;
+                const dx = bubbleX - mouseX;
+                const dy = bubbleY - mouseY;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < repulsionRadius) {
+                    const angle = Math.atan2(dy, dx);
+                    const force = (repulsionRadius - dist) * repulsionStrength;
+                    const offsetX = Math.cos(angle) * force;
+                    const offsetY = Math.sin(angle) * force;
+
+                    if (bubble.style.animation !== 'none') {
+                        bubble.dataset.anim = bubble.style.animation;
+                        bubble.style.animation = 'none';
+                    }
+                    bubble.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+                } else {
+                    if (bubble.style.animation === 'none' && bubble.dataset.anim) {
+                        bubble.style.transform = '';
+                        setTimeout(() => {
+                            const currentDist = Math.sqrt(
+                                (bubbleX - mouseX) ** 2 + (bubbleY - mouseY) ** 2
+                            );
+                            if (currentDist >= repulsionRadius) {
+                                bubble.style.animation = bubble.dataset.anim || '';
+                            }
+                        }, 150);
+                    }
+                }
+            });
+        }
+
+        let ticking = false;
+        document.addEventListener('mousemove', (e) => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    handleMouseMove(e);
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+
+        window.addEventListener('load', createBubbles);
+    </script>
+</body>
+</html>
+
